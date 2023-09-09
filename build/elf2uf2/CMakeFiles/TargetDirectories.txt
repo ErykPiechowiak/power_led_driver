@@ -1,0 +1,5 @@
+D:/Programowanie/Raspberry Pi/power_led_driver/build/elf2uf2/CMakeFiles/elf2uf2.dir
+D:/Programowanie/Raspberry Pi/power_led_driver/build/elf2uf2/CMakeFiles/edit_cache.dir
+D:/Programowanie/Raspberry Pi/power_led_driver/build/elf2uf2/CMakeFiles/rebuild_cache.dir
+D:/Programowanie/Raspberry Pi/power_led_driver/build/elf2uf2/boot_uf2_headers/CMakeFiles/edit_cache.dir
+D:/Programowanie/Raspberry Pi/power_led_driver/build/elf2uf2/boot_uf2_headers/CMakeFiles/rebuild_cache.dir
