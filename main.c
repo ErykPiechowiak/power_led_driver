@@ -260,6 +260,108 @@ void sunset_simulation(){
     uart_puts(UART_ID,"Diodes OFF!\n");
 }
 
+void brightness_up(){
+    gpio_set_function(PWM_PIN,GPIO_FUNC_PWM);
+    uint slice_num = pwm_gpio_to_slice_num(PWM_PIN); // Find out which PWM slice is connected to GPIO 16 
+    pwm_config config = pwm_get_default_config();
+    pwm_config_set_clkdiv(&config, 10000.f); // Set divider, reduces counter clock to sysclock/this value 9000
+    pwm_init(slice_num, &config, false); // Load the configuration into our PWM slice, and set it running.
+    char buf[10];  
+    int fade;
+    switch(configuration.brightness_lvl){
+        case 1:
+            fade = 64700;
+            break;
+        case 2:
+            fade = 63000;
+            break;
+        case 3:
+            fade = 62000;
+            break;
+        case 4:
+            fade = 0;
+            break;
+        default:
+            fade = 0;
+    }  
+    pwm_set_gpio_level(PWM_PIN, fade);
+    pwm_set_enabled(slice_num, true);
+    int i=0;
+    uint64_t sleep_time = 300000; 
+    uart_puts(UART_ID,"Brightness up!\n");
+
+    while(fade > 0){
+        fade--;
+        sprintf(buf,"%d \0",fade);
+        if (fade%100 == 0)
+            uart_puts(UART_ID,buf);
+        if(fade > 62000)
+            busy_wait_us(sleep_time);
+        else if(fade > 61000)
+            busy_wait_us(sleep_time/3);
+        else if(fade > 60000)
+            busy_wait_us(sleep_time/10);
+        else if (fade > 48000){
+            fade-=3;
+            busy_wait_us(sleep_time/20);
+        }
+        else
+            busy_wait_us(sleep_time/100);
+        
+        pwm_set_gpio_level(PWM_PIN, fade);
+    }
+}
+
+void brighntess_down(){
+    gpio_set_function(PWM_PIN,GPIO_FUNC_PWM);
+    uint slice_num = pwm_gpio_to_slice_num(PWM_PIN); // Find out which PWM slice is connected to GPIO 16 
+    pwm_config config = pwm_get_default_config();
+    pwm_config_set_clkdiv(&config, 10000.f); // Set divider, reduces counter clock to sysclock/this value 9000 - was 10000
+    pwm_init(slice_num, &config, false); // Load the configuration into our PWM slice, and set it running.
+    int i=0;
+    uint64_t sleep_time = 300;
+    uart_puts(UART_ID,"Brightness down!\n");
+    char buf[10];
+    int limit = 0;
+    int fade = 0;
+    switch(configuration.brightness_lvl){
+        case 1:
+            limit = 64700;
+            break;
+        case 2:
+            limit = 63000;
+            break;
+        case 3:
+            limit = 62000;
+            break;
+        case 4:
+            limit = 0;
+            break;
+        default:
+            limit = 0;
+    }
+    pwm_set_gpio_level(PWM_PIN, fade);
+    pwm_set_enabled(slice_num, true);
+    while(fade < limit){
+        fade++;
+        sprintf(buf,"%d \0",fade);
+        if (fade%100 == 0)
+            uart_puts(UART_ID,buf);
+        if(fade < 48000)
+            busy_wait_us(sleep_time);
+        else if(fade < 60000)
+            busy_wait_us(sleep_time*10);
+        else if (fade < 63000){
+            fade+=20;
+            busy_wait_us(sleep_time*20000);
+        }
+        else
+            busy_wait_us(sleep_time*1000);
+        
+        pwm_set_gpio_level(PWM_PIN, fade);            
+    }        
+}
+
 void check_valid_command(const char *received_string, size_t string_length){
     //Turn on the diodes
     if(strcmp(received_string,"Diodes ON") == 0){
